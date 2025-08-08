@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { CalendarPlus} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EventCard } from '@/components/event-card'
+import { DBEvent } from '@/types'
 
 export default async function Home() {
   const { data: events } = await supabase.from('events').select('*')
@@ -28,7 +29,7 @@ export default async function Home() {
       <section>
         <h4 className="text-xl font-semibold mb-4">Ejemplos</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events?.map((event) => (
+          {events?.map((event: DBEvent) => (
             <EventCard
               key={event.id}
               id={event.id}

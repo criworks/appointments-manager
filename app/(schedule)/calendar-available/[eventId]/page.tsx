@@ -1,13 +1,14 @@
 import { supabase } from '@/lib/supabaseClient'
 import { notFound } from 'next/navigation'
 import CalendarComponent from '@/components/calendar-component'
+import { DBEvent } from '@/types'
 
 export default async function CalendarAvailable({ params }: { params: { eventId: string } }) {
   const { data: event } = await supabase
     .from('events')
     .select('*')
     .eq('id', params.eventId)
-    .single()
+    .single() as { data: DBEvent | null }
 
   if (!event) {
     notFound()

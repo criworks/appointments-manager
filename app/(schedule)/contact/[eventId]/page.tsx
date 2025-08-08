@@ -1,13 +1,14 @@
 import { supabase } from '@/lib/supabaseClient'
 import { notFound } from 'next/navigation'
 import ContactForm from '@/components/contact-form'
+import { DBEvent } from '@/types'
 
 export default async function ContactPage({ params, searchParams }: { params: { eventId: string }, searchParams: { date: string, time: string } }) {
   const { data: event } = await supabase
     .from('events')
     .select('*')
     .eq('id', params.eventId)
-    .single()
+    .single() as { data: DBEvent | null }
 
   if (!event) {
     notFound()

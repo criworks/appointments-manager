@@ -1,0 +1,14 @@
+{
+  "rules": [
+    "Always respond in Spanish.",
+    "Use Typescript, Next.js, and Shadcn UI components.",
+    "Follow ESLint and Prettier conventions.",
+    "Organize components into logical directories and keep them small and reusable.",
+    "Use React Query (TanStack Query) or SWR for asynchronous data fetching.",
+    "Use Zod for schema validation.",
+    "Define API routes in `app/api/` and handle API errors consistently.",
+    "Ensure all components are accessible (a11y).",
+    "Optimize images using `next/image` and consider lazy loading for non-critical components.",
+    "Write unit and integration tests for key components and logic."
+  ]
+}

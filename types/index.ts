@@ -2,42 +2,38 @@
 
 // Tipos que reflejan la estructura de la base de datos Supabase
 export interface DBEvent {
-    id: number;
+    id: string;
     host_name: string;
     event_name: string;
     event_duration: string;
-    event_price: string | null;
-    event_location: string;
-    event_description: string | null;
+    event_price: number;
+    created_at: string; // ISO string from Supabase timestamp
 }
 
 export interface DBReservation {
-    id?: number; // Opcional porque será asignado por la base de datos
-    event_id: number;
+    id: string;
+    event_id: string;
+    reservation_date_time: string;
     participant_name: string;
     participant_email: string;
-    scheduled_date: string;
-    scheduled_time: string;
+    created_at: string;
 }
 
 // Tipos para usar en la aplicación
 export interface Event {
-    id: number;
+    id: string;
     hostName: string;
     eventName: string;
     eventDuration: string;
-    eventPrice: string | null;
-    eventLocation: string;
-    eventDescription: string | null;
+    eventPrice: number;
 }
 
 export interface Reservation {
-    id?: number;
-    eventId: number;
+    id?: string;
+    eventId: string;
     participantName: string;
     participantEmail: string;
-    scheduledDate: string;
-    scheduledTime: string;
+    reservationDateTime: string;
     event?: Event;  // Opcional: para incluir los detalles del evento si es necesario
 }
 
@@ -49,8 +45,6 @@ export function dbEventToEvent(dbEvent: DBEvent): Event {
         eventName: dbEvent.event_name,
         eventDuration: dbEvent.event_duration,
         eventPrice: dbEvent.event_price,
-        eventLocation: dbEvent.event_location,
-        eventDescription: dbEvent.event_description,
     };
 }
 
@@ -60,8 +54,7 @@ export function dbReservationToReservation(dbReservation: DBReservation): Reserv
         eventId: dbReservation.event_id,
         participantName: dbReservation.participant_name,
         participantEmail: dbReservation.participant_email,
-        scheduledDate: dbReservation.scheduled_date,
-        scheduledTime: dbReservation.scheduled_time,
+        reservationDateTime: dbReservation.reservation_date_time,
     };
 }
 
@@ -73,8 +66,7 @@ export function eventToDBEvent(event: Event): DBEvent {
         event_name: event.eventName,
         event_duration: event.eventDuration,
         event_price: event.eventPrice,
-        event_location: event.eventLocation,
-        event_description: event.eventDescription,
+        created_at: new Date().toISOString() // Assuming creation on client-side for new events
     };
 }
 
@@ -84,11 +76,7 @@ export function reservationToDBReservation(reservation: Reservation): DBReservat
         event_id: reservation.eventId,
         participant_name: reservation.participantName,
         participant_email: reservation.participantEmail,
-        scheduled_date: reservation.scheduledDate,
-        scheduled_time: reservation.scheduledTime,
+        reservation_date_time: reservation.reservationDateTime,
+        created_at: new Date().toISOString() // Assuming creation on client-side
     };
-}
-
-export interface SupabaseReservation extends DBReservation {
-    id: number;
 }

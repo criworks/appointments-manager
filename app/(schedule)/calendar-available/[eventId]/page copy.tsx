@@ -19,7 +19,7 @@ const CalendarAvailable: React.FC = () => {
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const eventId = Number(params.eventId);
+      const eventId = params.eventId as string;
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -78,16 +78,8 @@ const CalendarAvailable: React.FC = () => {
 
   const handleSchedule = () => {
     if (event && date && selectedHour) {
-      const scheduledEventData = {
-        eventId: event.id,
-        scheduledDate: date.toISOString().split('T')[0],  // Format as YYYY-MM-DD
-        scheduledTime: selectedHour,
-      };
-      // Guardar en localStorage para pasar a la página de contacto
-      localStorage.setItem('scheduledEvent', JSON.stringify(scheduledEventData));
-      localStorage.setItem('eventData', JSON.stringify(event));
-      console.log("Evento en LocalStorage");
-      router.push('/contact');
+      const formattedDate = date.toISOString().split('T')[0];
+      router.push(`/contact/${event.id}?date=${formattedDate}&time=${selectedHour}`);
     }
   };
 
@@ -98,7 +90,6 @@ const CalendarAvailable: React.FC = () => {
       <EventInfo
         hostName={event.hostName}
         eventName={event.eventName}
-        eventLocation={event.eventLocation}
         eventDuration={event.eventDuration}
         scheduledDate={date.toLocaleDateString()}
         scheduledTime={selectedHour || ""}

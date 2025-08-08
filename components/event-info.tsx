@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Event } from "@/types";
 
-type EventInfoProps = Omit<Event, 'id' | 'eventPrice' | 'eventDescription'> & {
+type EventInfoProps = Omit<Event, 'id' | 'eventPrice'> & {
   scheduledDate?: string;
   scheduledTime?: string;
 };
@@ -11,7 +11,6 @@ const EventInfo: React.FC<EventInfoProps> = ({
   eventName,
   scheduledDate,
   scheduledTime,
-  eventLocation,
   eventDuration,
 }) => {
   return (
@@ -26,10 +25,7 @@ const EventInfo: React.FC<EventInfoProps> = ({
             <div>{scheduledTime}</div>
           </div>
         )}
-        <div>
-          <p className="font-semibold">Dónde</p>
-          <div>{eventLocation}</div>
-        </div>
+        {/* Remove eventLocation section */}
         <div>
           <p className="font-semibold">Duración</p>
           <div>{eventDuration}</div>

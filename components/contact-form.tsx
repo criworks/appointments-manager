@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DBReservation } from '@/types'
 
 export default function ContactForm({ eventId, date, time }: { eventId: string, date: string, time: string }) {
   const [email, setEmail] = useState('')
@@ -19,11 +20,12 @@ export default function ContactForm({ eventId, date, time }: { eventId: string, 
       .from('reservations')
       .insert({
         event_id: eventId,
-        date: dateTime.toISOString(),
+        reservation_date_time: dateTime.toISOString(),
         participant_email: email,
-        participant_name: name
+        participant_name: name,
+        created_at: new Date().toISOString() // Add created_at
       })
-      .select()
+      .select() as { data: DBReservation[] | null, error: any }
 
     if (error) {
       console.error('Error creating reservation:', error)

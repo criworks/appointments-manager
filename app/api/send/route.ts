@@ -3,24 +3,25 @@ import { Resend } from 'resend'
 import { supabase } from '@/lib/supabaseClient'
 import fs from 'fs'
 import path from 'path'
+import { DBReservation, DBEvent } from '@/types'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
-    const { reservationId } = await req.json()
+    const { reservationId }: { reservationId: string } = await req.json()
 
     // Obtener los datos de la reserva de Supabase
     const { data: reservation, error } = await supabase
       .from('reservations')
       .select('*, events(*)')
       .eq('id', reservationId)
-      .single()
+      .single() as { data: (DBReservation & { events: DBEvent }) | null }
 
     if (error) throw error
 
     const event = reservation.events
-    const eventDate = new Date(reservation.date)
+    const eventDate = new Date(reservation.reservation_date_time)
 
     // Leer la plantilla del email
     const emailTemplate = fs.readFileSync(
