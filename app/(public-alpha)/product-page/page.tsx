@@ -3,8 +3,9 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, MapPin, Video, User } from 'lucide-react';
+import { Clock, MapPin, Video, User, CalendarPlus } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { Badge } from '@/components/ui/badge';
 
 function formatDuration(value: number, unit: 'minutes' | 'hours' | 'days') {
   const u = unit === 'minutes' ? 'm' : unit === 'hours' ? 'h' : 'd';
@@ -19,17 +20,27 @@ export default async function ProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="text-center space-y-6 max-w-3xl mx-auto">
-        <h1 className="text-5xl font-bold">Infraestructura de agendamiento para todos</h1>
-        <p className="text-xl text-muted-foreground">
-          Conecta tu calendario, establece tu disponibilidad y permite que las personas agenden reuniones contigo.
-        </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button size="lg" asChild>
-            <Link href="/create-event">Crear evento</Link>
-          </Button>
+
+      {/* Hero */}
+      <section className="text-center">
+        <div className="mb-4 flex flex-col items-center">
+          <Badge variant="secondary">Proyecto Portfolio</Badge>
+          <span className="mt-2 text-lg font-semibold">Agendamientos</span>
         </div>
-      </div>
+        <h1 className="text-4xl lg:text-5xl font-bold">Crea eventos</h1>
+        <h1 className="text-4xl lg:text-5xl font-bold">Recibe agendamientos</h1>
+        <p className="mt-2 text-lg text-gray-500">Crea eventos para que la gente que invites reserve en tu agenda</p>
+        <div className="flex items-center justify-center gap-4">
+
+          <Button className="mt-4" variant="default" asChild>
+            <Link href="/create-event">
+              <CalendarPlus className="mr-2 w-4 h-4" />
+              Crear evento
+            </Link>
+          </Button>
+
+        </div>
+      </section>
 
       {(events && events.length > 0) && (
         <div className="mt-20">
