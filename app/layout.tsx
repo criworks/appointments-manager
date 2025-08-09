@@ -17,7 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex flex-col min-h-screen max-w-screen-xl mx-auto`}>{children}
+      <body className={`${inter.className} flex flex-col min-h-screen max-w-screen-xl mx-auto`}>
+        {children}
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){

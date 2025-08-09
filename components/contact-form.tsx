@@ -1,77 +1,64 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { DBReservation } from '@/types'
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-export default function ContactForm({ eventId, date, time }: { eventId: string, date: string, time: string }) {
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
-  const router = useRouter()
+interface ContactFormProps {
+  onSubmit: (data: { name: string; email: string }) => void;
+  isLoading?: boolean;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const dateTime = new Date(`${date}T${time}:00`)
-    
-    const { data, error } = await supabase
-      .from('reservations')
-      .insert({
-        event_id: eventId,
-        reservation_date_time: dateTime.toISOString(),
-        participant_email: email,
-        participant_name: name,
-        created_at: new Date().toISOString() // Add created_at
-      })
-      .select() as { data: DBReservation[] | null, error: any }
+export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: ''
+  });
 
-    if (error) {
-      console.error('Error creating reservation:', error)
-      return
-    }
-
-    // Send email (this should be done server-side in a real application)
-    const emailResponse = await fetch('/api/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reservationId: data[0].id,
-        email,
-        name,
-        eventId,
-        date,
-        time,
-      }),
-    })
-
-    if (!emailResponse.ok) {
-      throw new Error('Failed to send email')
-    }
-
-    router.push(`/confirmation/${data[0].id}`)
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <Input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Name"
-        required
-      />
-      <Button type="submit">Reserve</Button>
-    </form>
-  )
+    <Card>
+      <CardHeader>
+        <CardTitle>Información de contacto</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nombre completo *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Tu nombre completo"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              placeholder="tu@email.com"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            {isLoading ? 'Agendando...' : 'Agendar'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
 }

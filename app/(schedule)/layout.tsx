@@ -1,24 +1,27 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from "@/components/ui/button";
-import { MessageCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function ScheduleLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <>
-      <header className="w-full py-5 px-10 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold">Agendamientos</h1>
-          <Badge variant="secondary">Proyecto Portfolio</Badge>
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/catalogue" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded"></div>
+            <span className="text-xl font-semibold">CalClone</span>
+          </Link>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild>
+              <Link href="/catalogue">Volver al catálogo</Link>
+            </Button>
+          </div>
         </div>
-        <Button variant="outline">
-          <MessageCircle className="mr-2 w-4 h-4" />
-          Feedback
-        </Button>
       </header>
-      <main className="flex-grow p-10">
-        {children}
-      </main>
-    </>
+      <main>{children}</main>
+    </div>
   );
 }
