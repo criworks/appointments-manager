@@ -24,7 +24,10 @@ export function EventCard({ id, hostName, eventName, durationValue, durationUnit
         </CardHeader>
         <CardContent>
           <div className="flex items-center text-sm text-gray-500 mt-2">
-            <Badge variant="secondary" icon={Clock}>{`${durationValue} ${durationUnit === 'minutes' ? 'min' : durationUnit === 'hours' ? 'h' : 'd'}`}</Badge>
+            <Badge variant="secondary" className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              {`${durationValue} ${durationUnit === 'minutes' ? 'min' : durationUnit === 'hours' ? 'h' : 'd'}`}
+            </Badge>
           </div>
           <p className="mt-2 font-semibold text-sm">${eventPrice}</p>
         </CardContent>
