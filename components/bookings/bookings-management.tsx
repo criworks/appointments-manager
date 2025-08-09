@@ -105,7 +105,6 @@ export function BookingManagement({
   const handleCancelBooking = (bookingId: string) => {
     onUpdateBooking(bookingId, { 
       status: 'cancelled',
-      cancellationReason,
       updatedAt: new Date()
     });
     setCancellationReason('');
@@ -128,7 +127,6 @@ export function BookingManagement({
       startTime: newStartTime,
       endTime: newEndTime,
       status: 'confirmed',
-      rescheduleReason,
       updatedAt: new Date()
     });
 
@@ -193,9 +191,9 @@ export function BookingManagement({
               </div>
             )}
 
-            {booking.responses && booking.responses.length > 0 && (
+            { (booking as any).responses && (booking as any).responses.length > 0 && (
               <div className="mt-2 space-y-1">
-                {booking.responses.map((response, index) => (
+                {(booking as any).responses.map((response: any, index: number) => (
                   <div key={index} className="text-sm">
                     <span className="font-medium">{response.question}:</span>
                     <span className="text-muted-foreground ml-2">{response.answer}</span>
@@ -362,8 +360,8 @@ export function BookingManagement({
                   <Label>Asistente</Label>
                   <p>{selectedBooking.attendeeName}</p>
                   <p className="text-sm text-muted-foreground">{selectedBooking.attendeeEmail}</p>
-                  {selectedBooking.attendeePhone && (
-                    <p className="text-sm text-muted-foreground">{selectedBooking.attendeePhone}</p>
+                  {(selectedBooking as any).attendeePhone && (
+                    <p className="text-sm text-muted-foreground">{(selectedBooking as any).attendeePhone}</p>
                   )}
                 </div>
                 <div>
@@ -382,11 +380,11 @@ export function BookingManagement({
                 </div>
               )}
 
-              {selectedBooking.responses && selectedBooking.responses.length > 0 && (
+              {(selectedBooking as any).responses && (selectedBooking as any).responses.length > 0 && (
                 <div>
                   <Label>Respuestas adicionales</Label>
                   <div className="space-y-2 mt-2">
-                    {selectedBooking.responses.map((response, index) => (
+                    {(selectedBooking as any).responses.map((response: any, index: number) => (
                       <div key={index} className="p-3 border rounded-lg">
                         <p className="font-medium text-sm">{response.question}</p>
                         <p className="text-sm text-muted-foreground">{response.answer}</p>
@@ -396,17 +394,17 @@ export function BookingManagement({
                 </div>
               )}
 
-              {selectedBooking.cancellationReason && (
+              {(selectedBooking as any).cancellationReason && (
                 <div>
                   <Label>Razón de cancelación</Label>
-                  <p className="text-sm text-muted-foreground">{selectedBooking.cancellationReason}</p>
+                  <p className="text-sm text-muted-foreground">{(selectedBooking as any).cancellationReason}</p>
                 </div>
               )}
 
-              {selectedBooking.rescheduleReason && (
+              {(selectedBooking as any).rescheduleReason && (
                 <div>
                   <Label>Razón de reprogramación</Label>
-                  <p className="text-sm text-muted-foreground">{selectedBooking.rescheduleReason}</p>
+                  <p className="text-sm text-muted-foreground">{(selectedBooking as any).rescheduleReason}</p>
                 </div>
               )}
             </div>

@@ -1,9 +1,17 @@
 import * as React from "react";
-import { Event } from "@/types";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-type EventInfoProps = Omit<Event, 'id' | 'eventPrice' | 'urlSlug' | 'availableFrom' | 'availableUntil' | 'availabilityDays' | 'createdAt' | 'hostId'> & {
+type EventInfoProps = {
+  hostName: string;
+  eventName: string;
+  description?: string;
+  eventType: 'Online' | 'Presencial (negocio)' | 'Presencial (cliente)';
+  onlineUrl?: string;
+  address?: string;
+  durationValue: number;
+  durationUnit: 'minutes' | 'hours' | 'days';
+  hostEmail: string;
   scheduledDate?: string;
   scheduledTime?: string;
 };

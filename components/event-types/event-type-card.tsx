@@ -94,11 +94,11 @@ export function EventTypeCard({
             </span>
           </div>
           
-          {eventType.eventPrice && (
+          {eventType.price && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Precio</span>
               <span className="text-sm">
-                {eventType.currency} {eventType.eventPrice}
+                {eventType.currency} {eventType.price}
               </span>
             </div>
           )}

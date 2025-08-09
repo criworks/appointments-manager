@@ -4,19 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { Reservation, Event } from "@/types";
 import { format, parseISO, addMinutes, addHours, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface ConfirmationClientProps {
-  reservation: Reservation;
-  event: Event;
+  reservation: {
+    reservationDateTime: string;
+    participantEmail: string;
+  };
+  event: {
+    eventName: string;
+    description?: string;
+    durationValue: number;
+    durationUnit: 'minutes' | 'hours' | 'days';
+    eventType: 'Online' | 'Presencial (negocio)' | 'Presencial (cliente)';
+    onlineUrl?: string;
+    address?: string;
+    hostName: string;
+    hostEmail: string;
+    eventPrice: number;
+  };
 }
 
 export default function ConfirmationClient({ reservation, event }: ConfirmationClientProps) {
   const router = useRouter();
 
-  // Convertir reservationDateTime a un objeto Date
   const reservationDateTime = parseISO(reservation.reservationDateTime);
   const scheduledDate = format(reservationDateTime, 'PPP', { locale: es });
   const scheduledTime = format(reservationDateTime, 'HH:mm');
@@ -85,7 +97,6 @@ export default function ConfirmationClient({ reservation, event }: ConfirmationC
   );
 }
 
-// Función auxiliar para calcular la hora de finalización
 function calculateEndTime(startTime: Date, durationValue: number, durationUnit: 'minutes' | 'hours' | 'days'): string {
   let endTime: Date;
   if (durationUnit === 'minutes') {
@@ -95,7 +106,7 @@ function calculateEndTime(startTime: Date, durationValue: number, durationUnit: 
   } else if (durationUnit === 'days') {
     endTime = addDays(startTime, durationValue);
   } else {
-    endTime = startTime; // Fallback
+    endTime = startTime;
   }
   return format(endTime, 'HH:mm');
 }
