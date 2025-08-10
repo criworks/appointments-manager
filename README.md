@@ -17,13 +17,16 @@ Aplicación de agendamiento sin fricción (product-led): permite crear eventos s
 - Vitest + Testing Library (tests)
 
 ## Estructura relevante
-- `app/(public-alpha)/product-page/page.tsx`: Landing. Lista eventos desde Supabase y CTA para crear evento.
-- `app/(schedule)/create-event/page.tsx`: Formulario de creación de eventos.
-- `app/(schedule)/create-event/created/[eventId]/page.tsx`: Confirmación de evento creado.
-- `app/(schedule)/calendar-available/[eventId]/page.tsx`: Selección de fecha/hora (simplificada, desde Supabase).
-- `app/(schedule)/contact/[eventId]/page.tsx`: Contacto/confirmación de reserva y envío de correos.
-- `app/api/event-created/route.ts`: API para email de confirmación de evento al anfitrión.
-- `emails/EventCreatedEmail.tsx`: Plantilla React Email.
+- `app/(marketing-page-pub-a)/product-page/page.tsx`: Landing pública con listado de eventos.
+- `app/(create-event-magnet)/create-event/page.tsx`: Formulario de creación de eventos.
+- `app/(create-event-magnet)/create-event/created/[eventId]/page.tsx`: Confirmación de evento creado.
+- `app/(booking-flow)/calendar-available/[eventId]/page.tsx`: Selección de fecha/hora.
+- `app/(booking-flow)/contact/[eventId]/page.tsx`: Contacto y confirmación de booking.
+- `app/(booking-flow)/confirmation/[bookingId]/page.tsx`: Confirmación de booking leyendo desde Supabase.
+- `app/(host-platform)/catalogue/page.tsx`: Catálogo del host.
+- `app/api/event-created/route.ts`: API de email para evento creado.
+- `app/api/booking-created/route.ts`: API que guarda booking y envía emails (host + participante).
+- `emails/EventCreatedEmail.tsx` y `emails/BookingCreatedEmail.tsx`: Plantillas React Email.
 - `lib/email.ts`: Utilidades centralizadas para emails (from, render, send, site URL).
 - `lib/supabaseClient.ts`: Cliente Supabase.
 
@@ -173,38 +176,69 @@ create policy "No public delete bookings" on public.bookings for delete using (f
 3) Email al anfitrión: `POST /api/event-created` usa React Email + Resend.
 4) Confirmación (`/create-event/created/[id]`): detalles con botón a la landing.
 
+### Booking (agendamiento)
+1) Selección de evento en landing y navegación a `calendar-available/[eventId]`.
+2) Selección de día/hora y paso a `contact/[eventId]`.
+3) Enviar formulario: el cliente llama a `POST /api/booking-created` con los datos del evento y participante.
+4) La API inserta en `public.bookings`, envía emails al participante y al host, y retorna `{ bookingId }`.
+5) El cliente redirige a `confirmation/[bookingId]` usando una ruta relativa para respetar el dominio actual (evita redirigir a localhost en producción).
+
 ## Emails
-- Plantilla: `emails/EventCreatedEmail.tsx`.
+- Plantillas: `emails/EventCreatedEmail.tsx` y `emails/BookingCreatedEmail.tsx`.
 - Envío centralizado: `lib/email.ts`.
 - Requisitos: dominio verificado en Resend.
+
+Notas:
+- `NEXT_PUBLIC_SITE_URL` se usa para CTAs dentro del contenido de los emails (no para redirecciones de la app). En producción debe apuntar al dominio productivo para que los links de emails sean correctos.
 
 ## Tests
 - `__tests__/create_event_flow.test.tsx`: flujo de creación (mock supabase+router+fetch).
 - Vitest configurado con jsdom y plugin React.
+- `__tests__/contact_booking_flow.test.tsx`: flujo booking desde Contact (submit + redirect).
+- `__tests__/confirmation_page.test.tsx`: confirmación `[bookingId]` lee Supabase.
+- `__tests__/api_booking_created.test.ts`: API `/api/booking-created` inserta y envía emails.
 
 ## Deployment
 - Variables de entorno en producción:
   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (dominio verificado)
-  - `NEXT_PUBLIC_SITE_URL=https://appointments.cri.works`
+  - `NEXT_PUBLIC_SITE_URL=https://appointments.cri.works` (se usa en CTAs de emails)
 - Asegurar las políticas RLS si se requieren restricciones mayores (actualmente públicas para inserts/reads).
+
+CI/CD:
+- Workflow de CI ejecuta tests y cobertura en pushes/PRs a `main` y `design`.
+- Codecov sube `coverage/lcov.info`. Si es repo privado o falla, añadir `CODECOV_TOKEN` en GitHub Actions Secrets.
 
 ## Features actuales
 - Crear eventos sin autenticación.
-- Guardar eventos en Supabase.
+- Guardar eventos en Supabase (`public.events`).
 - Listar eventos en landing desde DB.
 - Slug único automático (`mi-slug`, `mi-slug-2`, ...).
-- Email de confirmación al anfitrión (React Email + Resend).
+- Email de confirmación al anfitrión (React Email + Resend) usando `emails/EventCreatedEmail.tsx`.
 - Confirmación tras crear evento.
-- Selección de fecha/hora y contacto (flujo base).
+- Flujo de booking completo:
+  - Selección de fecha/hora en `calendar-available/[eventId]`.
+  - Paso de contacto en `contact/[eventId]`.
+  - Llamada a `POST /api/booking-created` (inserta en `public.bookings`, envía emails a participante y host con `emails/BookingCreatedEmail.tsx`).
+  - Redirección relativa a `confirmation/[bookingId]` para respetar el dominio actual.
+  - Página de confirmación lee los datos reales desde Supabase.
 
 ## Roadmap cercano
-- Mejoras en calendario y generación de horarios reales por disponibilidad (`availability_days`).
-- Página de detalle de evento pública con URL por `url_slug`.
-- Filtrado/búsqueda/paginación en landing.
-- Validaciones UI (URLs, longitudes, feedback en tiempo real).
-- Email de confirmación al participante + host al agendar (integración completa de `/api/send`).
-- Limpieza de mocks antiguos y migración completa a datos de Supabase.
+- Disponibilidad real: generar slots en base a `availability_days`, zona horaria y buffers.
+- Prevención de conflictos: check anti-solapamiento por host y bloqueo de slots ocupados en UI.
+- Detalle de evento pública por `url_slug` con calendario embebido.
+- Mejoras de UX en landing: filtros, búsqueda y paginación.
+- Emails:
+  - Añadir `Reply-To`, versión de texto plano, y branding unificado.
+  - Adjuntar archivo ICS y link “Añadir al calendario”.
+  - Manejo de zonas horarias coherente entre email y UI.
+- Gestión de booking: cancelación/reprogramación (con token seguro para invitados), notificaciones.
+- Seguridad y Auth:
+  - RLS por ownership (`created_by = auth.uid()`), roles host/participant.
+  - Limitar `insert/select` anónimos cuando integremos auth.
+  - Rate limits en API (middleware/edge) y protección anti-spam.
+- Observabilidad: logs centralizados y Sentry.
+- CI/CD: mantener cobertura, publicar reporte en Codecov, badge por rama principal.
 
 ## Mejoras sugeridas (no implementadas aún)
 - Reply-To configurable y etiquetas (tags) en Resend.
@@ -218,3 +252,15 @@ create policy "No public delete bookings" on public.bookings for delete using (f
 - Modelo product-led: inserts públicos habilitados; revisar políticas antes de abrir a producción.
 - Email depende de dominio verificado en Resend y formato válido del remitente.
 - Ajustar `NEXT_PUBLIC_SITE_URL` según entorno para CTAs correctos.
+
+## Troubleshooting
+- Emails no llegan:
+  - Verifica `RESEND_API_KEY` y que `RESEND_FROM_EMAIL` use un dominio verificado.
+  - Asegura que los campos `to`/`from` sean emails válidos; hay validación en `lib/email.ts`.
+- Links de email apuntan a localhost:
+  - Ajusta `NEXT_PUBLIC_SITE_URL` al dominio productivo; los CTAs de los emails usan esa variable.
+  - La app redirige con rutas relativas (p. ej. `/confirmation/:id`) para evitar forzar hostname.
+- Error al insertar booking por solapamiento:
+  - El constraint `bookings_no_overlap_by_host` bloquea reservas solapadas por `host_email`. Cambia hora o desactívalo si no aplica a tu caso.
+- 401/403 en Supabase con RLS:
+  - En este MVP, RLS permite `select/insert` públicos. Si cambiaste políticas, revisa que el cliente use claves válidas o adapta las políticas a tu caso de uso.
