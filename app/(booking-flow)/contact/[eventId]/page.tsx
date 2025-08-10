@@ -126,7 +126,7 @@ export default function ContactPage() {
         throw new Error(err?.error || 'No se pudo crear el booking');
       }
 
-      const { bookingId, confirmationUrl } = (await res.json()) as { bookingId: string; confirmationUrl: string };
+      const { bookingId } = (await res.json()) as { bookingId: string; confirmationUrl?: string };
 
       // 2) Guardar booking en sessionStorage para la página de confirmación (opcional)
       const completedBooking = {
@@ -152,8 +152,8 @@ export default function ContactPage() {
       sessionStorage.setItem('completedBooking', JSON.stringify(completedBooking));
       sessionStorage.removeItem('selectedBooking');
 
-      // 3) Redirigir a la página de confirmación devuelta por el API
-      router.push(confirmationUrl);
+      // 3) Redirigir a la página de confirmación (ruta relativa para entorno actual)
+      router.push(`/confirmation/${bookingId}`);
     } catch (error) {
       console.error('Error creating booking:', error);
     } finally {
