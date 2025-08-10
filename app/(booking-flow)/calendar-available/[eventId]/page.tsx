@@ -74,11 +74,8 @@ export default function CalendarAvailablePage() {
   if (!event) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <h1 className="text-2xl font-bold mb-2">Cargando...</h1>
-          </CardContent>
-        </Card>
+        <h1 className="text-2xl font-bold mb-2">Cargando...</h1>
+        <p className="text-muted-foreground">Espera un momento mientras cargamos los detalles del evento.</p>
       </div>
     );
   }

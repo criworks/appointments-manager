@@ -3,23 +3,19 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, MapPin, Video, User, CalendarPlus } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Badge } from '@/components/ui/badge';
-
-function formatDuration(value: number, unit: 'minutes' | 'hours' | 'days') {
-  const u = unit === 'minutes' ? 'm' : unit === 'hours' ? 'h' : 'd';
-  return `${value}${u}`;
-}
+import { EventCard } from '@/components/event-card';
 
 export default async function ProductPage() {
   const { data: events } = await supabase
     .from('events')
-    .select('id, event_name, description, event_type, duration_value, duration_unit, host_name, url_slug, online_url, address')
+    .select('id, event_name, description, event_type, duration_value, duration_unit, host_name, url_slug, online_url, address, event_price')
     .order('created_at', { ascending: false });
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <>
 
       {/* Hero */}
       <section className="text-center">
@@ -42,49 +38,7 @@ export default async function ProductPage() {
         </div>
       </section>
 
-      {(events && events.length > 0) && (
-        <div className="mt-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Eventos disponibles</h2>
-            <p className="text-muted-foreground">Agenda una reunión directamente desde aquí</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {events.map((evt) => (
-              <Card key={evt.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">{evt.event_name}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {evt.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">{evt.description}</p>
-                  )}
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatDuration(evt.duration_value, evt.duration_unit)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {evt.event_type === 'Online' ? <Video className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
-                      <span>{evt.event_type}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>{evt.host_name}</span>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4" asChild>
-                    <Link href={`/calendar-available/${evt.url_slug || evt.id}`}>Agendar reunión</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* Features Section */}
       <div className="mt-20 grid md:grid-cols-3 gap-8">
         <Card>
           <CardHeader>
@@ -108,7 +62,7 @@ export default async function ProductPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Integración con calendario</CardTitle>
+            <CardTitle>Integración con calendario <Badge variant="secondary">Pronto</Badge></CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
@@ -117,6 +71,32 @@ export default async function ProductPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      
+      {/* Events Section */}
+      {(events && events.length > 0) && (
+        <section>
+          <h4 className="text-xl font-semibold mb-4">Eventos creados por usuarios</h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {events.map((evt) => (
+              <EventCard
+                key={evt.id}
+                id={evt.id}
+                hostName={evt.host_name}
+                eventName={evt.event_name}
+                durationValue={evt.duration_value}
+                durationUnit={evt.duration_unit}
+                eventType={evt.event_type}
+                url_slug={evt.url_slug}
+                description={evt.description}
+                eventPrice={evt.event_price}
+              />
+
+            ))}
+          </div>
+        </section>
+      )}
+
+    </>
   );
 }

@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { MessageCircle } from 'lucide-react';
 
 export default function ScheduleLayout({
   children,
@@ -7,21 +9,26 @@ export default function ScheduleLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/catalogue" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded"></div>
-            <span className="text-xl font-semibold">CalClone</span>
+    <>
+      <header className="w-full py-5 px-10 flex justify-between items-center">
+        <div>
+          <Link href="/" className="flex items-center space-x-4">
+            <h1 className="text-xl font-semibold">Agendamientos</h1>
+            <Badge variant="secondary">Proyecto Portfolio</Badge>
           </Link>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/catalogue">Volver al catálogo</Link>
-            </Button>
-          </div>
+        </div>
+
+        <div>
+          <Button variant="outline">
+            <MessageCircle className="mr-2 w-4 h-4" />
+            Feedback
+          </Button>
         </div>
       </header>
-      <main>{children}</main>
-    </div>
+
+      <main className="flex-grow p-10">
+        {children}
+      </main>
+    </>
   );
 }
