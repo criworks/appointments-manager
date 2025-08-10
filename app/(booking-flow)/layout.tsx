@@ -26,7 +26,7 @@ export default function ScheduleLayout({
         </div>
       </header>
 
-      <main className="flex-grow p-10">
+      <main className="grow p-10">
         {children}
       </main>
     </>

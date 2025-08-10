@@ -268,7 +268,7 @@ export default function CreateEventPage() {
 
         {/* Duración */}
         <div className="flex items-end space-x-2">
-          <div className="flex-grow">
+          <div className="grow">
             <Label htmlFor="durationValue">Duración</Label>
             <Input
               id="durationValue"

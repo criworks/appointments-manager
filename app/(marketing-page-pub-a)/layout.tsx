@@ -5,7 +5,7 @@ import { MessageCircle } from 'lucide-react';
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <main className="flex-grow w-full p-10 space-y-10">
+      <main className="grow w-full p-10 space-y-10">
         {children}
       </main>
       <footer className="w-full py-5 px-10 text-gray-500 flex justify-between items-center">
