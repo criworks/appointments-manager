@@ -18,28 +18,61 @@ export default async function ProductPage() {
     <>
 
       {/* Hero */}
-      <section className="text-center">
+      <section className="text-center mt-10 flex flex-col gap-10">
         <div className="mb-4 flex flex-col items-center">
           <Badge variant="secondary">Proyecto Portfolio</Badge>
           <span className="mt-2 text-lg font-semibold">Agendamientos</span>
         </div>
-        <h1 className="text-4xl lg:text-5xl font-bold">Crea eventos</h1>
-        <h1 className="text-4xl lg:text-5xl font-bold">Recibe agendamientos</h1>
-        <p className="mt-2 text-lg text-muted-foreground">Crea eventos para que la gente que invites reserve en tu agenda</p>
-        <div className="flex items-center justify-center gap-4">
 
-          <Button className="mt-4" variant="default" asChild>
-            <Link href="/create-event">
-              <CalendarPlus className="mr-2 w-4 h-4" />
-              Crear evento
-            </Link>
-          </Button>
+        <div className='flex flex-col gap-4 items-center'>
+          <h1 className="text-4xl lg:text-5xl font-bold">
+            Crea eventos
+            <br />
+            Recibe agendamientos
+          </h1>
+          <p className="mt-2 text-lg text-muted-foreground">Crea eventos para que la gente que invites reserve en tu agenda</p>
+          <div className="flex items-center justify-center gap-4">
 
+            <Button className="mt-4" variant="default" asChild>
+              <Link href="/create-event">
+                <CalendarPlus className="mr-2 w-4 h-4" />
+                Crear evento
+              </Link>
+            </Button>
+
+          </div>
         </div>
+        
       </section>
 
+      
+      {/* Events Section */}
+      {(events && events.length > 0) && (
+        <section>
+          <h4 className="text-xl font-semibold mb-4">Eventos creados por usuarios</h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {events.map((evt) => (
+              <EventCard
+                key={evt.id}
+                id={evt.id}
+                hostName={evt.host_name}
+                eventName={evt.event_name}
+                durationValue={evt.duration_value}
+                durationUnit={evt.duration_unit}
+                eventType={evt.event_type}
+                url_slug={evt.url_slug}
+                description={evt.description}
+                eventPrice={evt.event_price}
+              />
+
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Features Section */}
-      <div className="mt-20 grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-3 gap-8">
         <Card>
           <CardHeader>
             <CardTitle>Agendamiento fácil</CardTitle>
@@ -71,32 +104,6 @@ export default async function ProductPage() {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Events Section */}
-      {(events && events.length > 0) && (
-        <section>
-          <h4 className="text-xl font-semibold mb-4">Eventos creados por usuarios</h4>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {events.map((evt) => (
-              <EventCard
-                key={evt.id}
-                id={evt.id}
-                hostName={evt.host_name}
-                eventName={evt.event_name}
-                durationValue={evt.duration_value}
-                durationUnit={evt.duration_unit}
-                eventType={evt.event_type}
-                url_slug={evt.url_slug}
-                description={evt.description}
-                eventPrice={evt.event_price}
-              />
-
-            ))}
-          </div>
-        </section>
-      )}
-
     </>
   );
 }
