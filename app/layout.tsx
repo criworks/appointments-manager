@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Recibe agendamientos - Proyecto @cri.string",
   description: "Crea eventos para que la gente que invites reserve en tu agenda",
+  icons: {
+    shortcut: "/avatar-cri.png",
+  },
 };
 
 export default function RootLayout({

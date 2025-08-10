@@ -47,7 +47,6 @@
   },
   "devDependencies": {
     "@react-email/preview-server": "^4.2.8",
-    "@tailwindcss/postcss": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
@@ -56,12 +55,13 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/coverage-v8": "^2.1.9",
+    "autoprefixer": "^10.4.17",
     "eslint": "^9.32.0",
     "eslint-config-next": "15.4.4",
     "jsdom": "^26.1.0",
     "postcss": "^8",
     "react-email": "^4.2.8",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vitest": "^2.0.5",
     "whatwg-fetch": "^3.6.20"

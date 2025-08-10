@@ -25,7 +25,7 @@ export default async function ProductPage() {
         </div>
         <h1 className="text-4xl lg:text-5xl font-bold">Crea eventos</h1>
         <h1 className="text-4xl lg:text-5xl font-bold">Recibe agendamientos</h1>
-        <p className="mt-2 text-lg text-gray-500">Crea eventos para que la gente que invites reserve en tu agenda</p>
+        <p className="mt-2 text-lg text-muted-foreground">Crea eventos para que la gente que invites reserve en tu agenda</p>
         <div className="flex items-center justify-center gap-4">
 
           <Button className="mt-4" variant="default" asChild>

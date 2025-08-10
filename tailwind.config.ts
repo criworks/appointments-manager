@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss"
 
 const config: Config = {
   darkMode: 'class',
+  // Tailwind v3: escaneo via content
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -44,19 +45,12 @@ const config: Config = {
         chart4: "var(--chart-4)",
         chart5: "var(--chart-5)",
       },
-      borderRadius: {
-        xs: "calc(var(--radius) * 0.6)",   // ≈ 6px
-        sm: "calc(var(--radius) * 1.2)",   // ≈ 12px
-        md: "calc(var(--radius) * 1.6)",   // ≈ 16px
-        lg: "calc(var(--radius) * 3)",     // ≈ 30px
-        DEFAULT: "var(--radius)",          // 10px base
-      },
       fontFamily: {
         sans: ['var(--font-sans)', 'sans-serif'], // var(--font-sans) Viene definido en layout.tsx
       },
     }
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require('tailwindcss-animate')],
 }
 
 export default config
