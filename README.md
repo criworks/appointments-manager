@@ -1,5 +1,8 @@
 # Appointments Manager (Clon estilo Cal.com)
 
+[![CI](https://github.com/criworks/appointments-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/criworks/appointments-manager/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/criworks/appointments-manager/branch/design/graph/badge.svg)](https://codecov.io/gh/criworks/appointments-manager)
+
 Aplicación de agendamiento sin fricción (product-led): permite crear eventos sin autenticación, publicarlos y que terceros agenden horarios.
 
 ## Stack y versiones
@@ -73,6 +76,91 @@ create policy "Public select events" on public.events for select using (true);
 drop policy if exists "Public insert events" on public.events;
 create policy "Public insert events" on public.events for insert with check (true);
 ```
+
+### Bookings
+```sql
+create extension if not exists btree_gist;
+
+create table if not exists public.bookings (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid null,
+  event_name text not null,
+
+  host_name text not null,
+  host_email text not null,
+
+  attendee_name text not null,
+  attendee_email text not null,
+
+  start_time timestamptz not null,
+  end_time timestamptz not null,
+
+  location jsonb not null,
+  status text not null check (status in ('confirmed','pending','cancelled','completed','rescheduled')),
+  notes text null,
+
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  updated_at timestamptz not null default timezone('utc'::text, now())
+);
+
+create index if not exists bookings_event_idx on public.bookings(event_id);
+create index if not exists bookings_host_email_idx on public.bookings(host_email);
+create index if not exists bookings_attendee_email_idx on public.bookings(attendee_email);
+create index if not exists bookings_start_time_idx on public.bookings(start_time);
+
+create unique index if not exists bookings_event_start_unique
+  on public.bookings(event_id, start_time);
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'bookings_no_overlap_by_host'
+  ) then
+    alter table public.bookings
+    add constraint bookings_no_overlap_by_host exclude using gist (
+      host_email with =,
+      tstzrange(start_time, end_time, '[)') with &&
+    );
+  end if;
+end$$;
+
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = timezone('utc'::text, now());
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_bookings_updated_at on public.bookings;
+create trigger trg_bookings_updated_at
+before update on public.bookings
+for each row execute procedure public.set_updated_at();
+
+alter table public.bookings enable row level security;
+
+drop policy if exists "Public insert bookings" on public.bookings;
+create policy "Public insert bookings" on public.bookings for insert using (true) with check (true);
+
+drop policy if exists "Public select bookings" on public.bookings;
+create policy "Public select bookings" on public.bookings for select using (true);
+
+drop policy if exists "No public update bookings" on public.bookings;
+create policy "No public update bookings" on public.bookings for update using (false) with check (false);
+
+drop policy if exists "No public delete bookings" on public.bookings;
+create policy "No public delete bookings" on public.bookings for delete using (false);
+```
+
+### Permisos y RLS (sin auth / futuro con auth)
+- En este MVP, las políticas están abiertas para no bloquear el flujo: `select` e `insert` públicos en `events` y `bookings`; `update`/`delete` deshabilitados.
+- Si vas a autenticar usuarios, te dejo estas abiertas ahora para no bloquear el flujo; luego las restringimos por `auth.uid()`/ownership.
+  - Ejemplo futuro (orientativo):
+    - Agregar `created_by uuid` en `events`/`bookings` con default `auth.uid()` y FK a `auth.users`.
+    - `select` limitado a: dueño (`created_by = auth.uid()`), y/o reglas por rol (host vs. participante), y/o acceso por token temporal (magic link) fuera de RLS.
+    - `insert` limitado a usuarios autenticados; `update`/`delete` sólo para el dueño.
+  - Para participantes sin cuenta, preferir enlaces firmados (magic links) y no ampliar RLS pública.
 
 ## Desarrollo
 - Instalar deps: `npm install`

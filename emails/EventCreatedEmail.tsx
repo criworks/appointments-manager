@@ -24,12 +24,14 @@ export default function EventCreatedEmail({
   return (
     <Html>
       <Head />
-      <Preview>Tu evento “{eventName}” fue creado</Preview>
+      <Preview>Tu evento “{eventName}” fue creado con éxito</Preview>
       <Body style={{ backgroundColor: '#f6f9fc', margin: 0, padding: '24px 0' }}>
-        <Container style={{ backgroundColor: '#ffffff', borderRadius: 12, padding: 24, width: 600, margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
+        <Container style={{ backgroundColor: '#ffffff', borderRadius: 12, padding: 24, width: '100%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
           <Heading as="h2" style={{ margin: 0, marginBottom: 12 }}>Hola {hostName},</Heading>
           <Text style={{ margin: 0, marginBottom: 16 }}>
-            Tu evento ha sido creado exitosamente. Aquí un resumen:
+            Tu evento ha sido creado exitosamente.
+            <br />
+            Aquí tienes los detalles del evento que has creado.
           </Text>
           <Hr style={{ borderColor: '#eee', margin: '16px 0' }} />
 

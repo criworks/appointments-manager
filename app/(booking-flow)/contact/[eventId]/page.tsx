@@ -100,60 +100,37 @@ export default function ContactPage() {
       if (event.duration_unit === 'days') endTime.setDate(endTime.getDate() + event.duration_value);
       else if (event.duration_unit === 'hours') endTime.setHours(endTime.getHours() + event.duration_value);
       else endTime.setMinutes(endTime.getMinutes() + event.duration_value);
+      // 1) Crear booking y enviar emails vía API
+      const res = await fetch('/api/booking-created', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: event.id,
+          eventName: event.event_name,
+          eventType: event.event_type,
+          onlineUrl: event.online_url,
+          address: event.address,
+          durationValue: event.duration_value,
+          durationUnit: event.duration_unit,
+          hostName: event.host_name,
+          hostEmail: event.host_email,
+          attendeeName: contactData.name,
+          attendeeEmail: contactData.email,
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          time: bookingSelection.time,
+        }),
+      });
 
-      // 1) Insertar reserva en Supabase
-      const { data: inserted, error: insertError } = await supabase
-        .from('reservations')
-        .insert({
-          event_id: event.id,
-          participant_email: contactData.email,
-          participant_name: contactData.name,
-          reservation_date_time: startTime.toISOString(),
-          status: 'confirmed',
-        })
-        .select('id')
-        .single();
-
-      if (insertError) {
-        console.error('Error inserting reservation:', insertError);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'No se pudo crear el booking');
       }
 
-      const reservationId = inserted?.id ?? Date.now().toString();
+      const { bookingId, confirmationUrl } = (await res.json()) as { bookingId: string; confirmationUrl: string };
 
-      // 2) Disparar correo por API (best-effort)
-      try {
-        await fetch('/api/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            reservationId,
-            event: {
-              id: event.id,
-              hostName: event.host_name,
-              hostEmail: event.host_email,
-              eventName: event.event_name,
-              description: event.description,
-              eventType: event.event_type,
-              onlineUrl: event.online_url,
-              address: event.address,
-              durationValue: event.duration_value,
-              durationUnit: event.duration_unit,
-            },
-            participant: {
-              name: contactData.name,
-              email: contactData.email,
-            },
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
-          }),
-        });
-      } catch (e) {
-        console.warn('Email dispatch failed (non-blocking):', e);
-      }
-
-      // 3) Guardar booking para la p 1gina de confirmaci 3n
+      // 2) Guardar booking en sessionStorage para la página de confirmación (opcional)
       const completedBooking = {
-        id: reservationId,
+        id: bookingId,
         eventTypeId: event.id,
         title: event.event_name,
         attendeeName: contactData.name,
@@ -175,7 +152,8 @@ export default function ContactPage() {
       sessionStorage.setItem('completedBooking', JSON.stringify(completedBooking));
       sessionStorage.removeItem('selectedBooking');
 
-      router.push(`/confirmation/${reservationId}`);
+      // 3) Redirigir a la página de confirmación devuelta por el API
+      router.push(confirmationUrl);
     } catch (error) {
       console.error('Error creating booking:', error);
     } finally {
